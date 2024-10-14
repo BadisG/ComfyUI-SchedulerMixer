@@ -16,6 +16,7 @@ class SchedulerMixer:
                 "sgm_uniform": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
                 "simple": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01}),
                 "ddim_uniform": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "beta": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
             }
         }
     
@@ -23,15 +24,15 @@ class SchedulerMixer:
     CATEGORY = "sampling/custom_sampling/schedulers"
     FUNCTION = "get_sigmas"
 
-    def get_sigmas(self, model, steps, denoise, normal, karras, exponential, sgm_uniform, simple, ddim_uniform):
+    def get_sigmas(self, model, steps, denoise, normal, karras, exponential, sgm_uniform, simple, ddim_uniform, beta):
         total_steps = steps
         if denoise < 1.0:
             if denoise <= 0.0:
                 return (torch.FloatTensor([]),)
             total_steps = int(steps/denoise)
 
-        scheduler_weights = [normal, karras, exponential, sgm_uniform, simple, ddim_uniform]
-        scheduler_names = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform"]
+        scheduler_weights = [normal, karras, exponential, sgm_uniform, simple, ddim_uniform, beta]
+        scheduler_names = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform", "beta"]
 
         mixed_sigmas = torch.zeros((steps + 1,), device="cpu", dtype=torch.float)
         for weight, name in zip(scheduler_weights, scheduler_names):                        
